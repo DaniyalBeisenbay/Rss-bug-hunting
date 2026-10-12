@@ -1,3 +1,4 @@
+
 const products = [
   { id: 1, name: "iPhone 15", price: 999, category: "phone" },
   { id: 2, name: "Galaxy S24", price: 899, category: "phone" },
@@ -17,37 +18,55 @@ const grid = document.getElementById("grid");
 const countEl = document.getElementById("count");
 
 function getFiltered() {
-  let result = products;
-  const search = searchInput.value;
+  let result = [...products];
+
+  const search = searchInput.value.trim().toLowerCase();
   const category = categorySelect.value;
   const sort = sortSelect.value;
 
+  // Поиск по части названия без учёта регистра
   if (search) {
-    result = result.filter((p) => p.name === search);
+    result = result.filter((p) =>
+      p.name.toLowerCase().includes(search)
+    );
   }
 
+  // Фильтрация по категории
   if (category !== "all") {
-    result = products.filter((p) => p.category !== category);
+    result = result.filter((p) =>
+      p.category === category
+    );
   }
 
+  // Сортировка по цене
   if (sort === "asc") {
-    result.sort((a, b) => b.price - a.price);
-  } else if (sort === "desc") {
     result.sort((a, b) => a.price - b.price);
+  } else if (sort === "desc") {
+    result.sort((a, b) => b.price - a.price);
   }
 
   return result;
 }
 
 function render() {
+  grid.innerHTML = "";
+
   const items = getFiltered();
+
   items.forEach((p) => {
     const card = document.createElement("div");
     card.className = "card";
-    card.innerHTML = `<h3>${p.name}</h3><p class="cat">${p.category}</p><p class="price">$${p.price}</p>`;
+
+    card.innerHTML = `
+      <h3>${p.name}</h3>
+      <p class="cat">${p.category}</p>
+      <p class="price">$${p.price}</p>
+    `;
+
     grid.appendChild(card);
   });
-  countEl.textContent = products.length;
+
+  countEl.textContent = items.length;
 }
 
 searchInput.addEventListener("input", render);
@@ -56,4 +75,9 @@ sortSelect.addEventListener("change", render);
 
 resetBtn.addEventListener("click", () => {
   searchInput.value = "";
+  categorySelect.value = "all";
+  sortSelect.value = "default";
+  render();
 });
+
+render();
